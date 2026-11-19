@@ -1,0 +1,11 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <direccion@empresa-ejemplo.test>
+Authentication-Results: mx.empresa-ejemplo.test; spf=pass; dkim=pass
+From: "Director General" <direccion@empresa-ejemplo.test>
+Reply-To: director.personal@gmail.com
+To: empleado@empresa-ejemplo.test
+Subject: Un favor
+
+Hola, necesito un favor urgente. Estoy en una reunion y no puedo llamar.
+Compra 5 tarjetas regalo de 100 EUR y enviame los codigos por correo. Responde a mi correo personal.

@@ -1,0 +1,14 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <ana.garcia@empresa-ejemplo.test>
+Authentication-Results: mx.empresa-ejemplo.test; spf=pass; dkim=pass
+From: "Ana Garcia" <ana.garcia@empresa-ejemplo.test>
+To: juan.perez@empresa-ejemplo.test
+Subject: Reunion del jueves
+
+Hola Juan,
+
+Te recuerdo la reunion del jueves a las 10:00 en la sala 2. Es urgente que confirmes si vienes, para reservar la sala.
+
+Un saludo,
+Ana

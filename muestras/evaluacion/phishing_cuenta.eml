@@ -1,0 +1,9 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <no-reply@micros0ft-cuenta.example>
+Authentication-Results: mx.ejemplo.test; spf=fail; dkim=none
+From: "Soporte de cuenta" <no-reply@micros0ft-cuenta.example>
+To: usuario@correo.test
+Subject: Actividad inusual en su cuenta
+
+Su cuenta sera suspendida en 24 horas. Verifique su identidad ahora: https://bit.ly/ejemplo-verificar

@@ -1,0 +1,11 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <avisos@bancoejemplo.test>
+Authentication-Results: mx.bancoejemplo.test; spf=pass; dkim=pass
+From: "Banco Ejemplo" <avisos@bancoejemplo.test>
+To: cliente@correo.test
+Subject: Su extracto de octubre ya esta disponible
+
+Estimado cliente, su extracto mensual ya esta disponible en la banca online.
+Por seguridad, verifique siempre que la direccion empieza por https://www.bancoejemplo.test
+Nunca le pediremos su clave por correo.

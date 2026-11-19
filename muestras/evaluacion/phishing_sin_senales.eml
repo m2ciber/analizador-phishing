@@ -1,0 +1,9 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <marta.ruiz@empresa-ejemplo.test>
+Authentication-Results: mx.empresa-ejemplo.test; spf=pass; dkim=pass
+From: "Marta Ruiz" <marta.ruiz@empresa-ejemplo.test>
+To: empleado@empresa-ejemplo.test
+Subject: Factura del mes
+
+Hola, te paso la factura pendiente del mes. Puedes descargarla aqui: http://facturas-pendientes.example/descargar.zip

@@ -1,0 +1,10 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <aviso@correos-envios-seguimiento.example>
+Authentication-Results: mx.ejemplo.test; spf=softfail; dkim=none
+From: "Correos" <aviso@correos-envios-seguimiento.example>
+To: cliente@correo.test
+Subject: No hemos podido entregar su paquete
+
+Su paquete no pudo ser entregado. Sera devuelto en 24 horas. Ultimo aviso.
+Pague las tasas de reenvio (1,99 EUR) aqui: http://correos-seguimiento-pago.example/tasas

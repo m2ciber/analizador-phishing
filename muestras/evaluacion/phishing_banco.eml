@@ -1,0 +1,17 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <bounce-992@servidor-malicioso.example>
+Authentication-Results: mx.ejemplo.test; spf=fail (domain of seguridad@bannco-santander-soporte.com does not designate 203.0.113.45 as permitted sender); dkim=none
+From: "Soporte Banco" <seguridad@bannco-santander-soporte.com>
+Reply-To: atencion@gmail.com
+To: victima@empresa.es
+Subject: [URGENTE] Transferencia retenida de 1.450,00 EUR - Verifique su identidad
+
+Estimado cliente,
+
+Hemos detectado una transferencia saliente no autorizada desde su cuenta.
+Si usted no realizo esta operacion, cancelela en las proximas 2 horas o perdera sus fondos.
+
+Acceda al portal seguro: http://203.0.113.45/verificar-cuenta
+
+Departamento de Fraude.

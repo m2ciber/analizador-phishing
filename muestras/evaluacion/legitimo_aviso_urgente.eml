@@ -1,0 +1,10 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <admin@comunidadejemplo.test>
+Authentication-Results: mx.comunidadejemplo.test; spf=softfail; dkim=pass
+From: "Administracion" <admin@comunidadejemplo.test>
+To: vecino@correo.test
+Subject: Aviso urgente: corte de agua
+
+Aviso urgente: manana habra un corte de agua por obras en la calle. El corte durara 24 horas.
+Rogamos que almacene agua con antelacion. Disculpen las molestias.

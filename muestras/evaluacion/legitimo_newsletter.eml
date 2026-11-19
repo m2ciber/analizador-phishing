@@ -1,0 +1,12 @@
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-Path: <bounce-8841@envios-masivos.example>
+Authentication-Results: mx.ejemplo.test; spf=pass; dkim=pass
+From: "Tienda Ejemplo" <novedades@tiendaejemplo.test>
+Reply-To: atencion@tiendaejemplo.test
+To: cliente@correo.test
+Subject: Ofertas de otono
+
+Hola, estas son las novedades de la semana. Descuentos de hasta el 30% hasta el domingo.
+Ver ofertas: https://www.tiendaejemplo.test/ofertas
+Si no quieres recibir mas correos, puedes darte de baja aqui: https://www.tiendaejemplo.test/baja
