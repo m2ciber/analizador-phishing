@@ -1,11 +1,25 @@
 import email
-from email import policy
 import re
 import sys
+from email import policy
+from email.utils import parseaddr
+
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODELO = "llama3.2"
+
+PALABRAS_URGENCIA = [
+    "urgente", "inmediatamente", "2 horas", "24 horas", "bloqueada",
+    "bloqueado", "suspendida", "verifique", "perderá", "perdera",
+    "cancele", "cancelela",
+]
+
+
+def dominio_de(direccion):
+    """Devuelve el dominio de una dirección tipo 'Nombre <usuario@dominio.com>'."""
+    _, correo = parseaddr(str(direccion))
+    return correo.split("@")[-1].lower() if "@" in correo else ""
 
 
 def extraer_datos_eml(ruta_archivo):
@@ -17,11 +31,11 @@ def extraer_datos_eml(ruta_archivo):
         sys.exit(1)
 
     datos = {
-        "from": msg.get("From", "Desconocido"),
-        "reply_to": msg.get("Reply-To", "No especificado"),
-        "return_path": msg.get("Return-Path", "No especificado"),
-        "subject": msg.get("Subject", "Sin asunto"),
-        "auth_results": msg.get("Authentication-Results", "Sin registros SPF/DKIM"),
+        "from": str(msg.get("From", "Desconocido")),
+        "reply_to": str(msg.get("Reply-To", "")),
+        "return_path": str(msg.get("Return-Path", "")),
+        "subject": str(msg.get("Subject", "Sin asunto")),
+        "auth_results": str(msg.get("Authentication-Results", "")),
         "cuerpo": "",
     }
 
@@ -33,34 +47,65 @@ def extraer_datos_eml(ruta_archivo):
     else:
         datos["cuerpo"] = msg.get_content()
 
-    # Extraer URLs e IPs con expresiones regulares
+    texto = datos["cuerpo"] + " " + datos["auth_results"]
     datos["urls"] = list(set(re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', datos["cuerpo"])))
-    datos["ips"] = list(set(re.findall(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", datos["cuerpo"] + " " + str(datos["auth_results"]))))
-
+    datos["ips"] = list(set(re.findall(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", texto)))
     return datos
 
 
-def analizar_con_ia(datos):
+def comprobaciones_automaticas(datos):
+    """Hallazgos verificables con código, sin depender de la IA."""
+    hallazgos = []
+    dom_from = dominio_de(datos["from"])
+    dom_reply = dominio_de(datos["reply_to"])
+    dom_return = dominio_de(datos["return_path"])
+    auth = datos["auth_results"].lower()
+    texto = (datos["subject"] + " " + datos["cuerpo"]).lower()
+
+    if dom_reply and dom_from and dom_reply != dom_from:
+        hallazgos.append(f"El Reply-To ({dom_reply}) no coincide con el dominio del remitente ({dom_from}).")
+    if dom_return and dom_from and dom_return != dom_from:
+        hallazgos.append(f"El Return-Path ({dom_return}) no coincide con el dominio del remitente ({dom_from}).")
+    if "spf=fail" in auth or "spf=softfail" in auth:
+        hallazgos.append("SPF falla: el servidor emisor no está autorizado por el dominio del remitente.")
+    if "dkim=none" in auth or "dkim=fail" in auth:
+        hallazgos.append("DKIM ausente o inválido: el mensaje no está firmado correctamente.")
+    for url in datos["urls"]:
+        if re.match(r"https?://\d{1,3}(?:\.\d{1,3}){3}", url):
+            hallazgos.append(f"Enlace con dirección IP en lugar de dominio: {url}")
+    encontradas = [p for p in PALABRAS_URGENCIA if p in texto]
+    if encontradas:
+        hallazgos.append("Lenguaje de urgencia o amenaza: " + ", ".join(encontradas))
+    return hallazgos
+
+
+def analizar_con_ia(datos, hallazgos):
+    lista_hallazgos = "\n".join(f"- {h}" for h in hallazgos) or "- Ninguno"
     prompt = f"""
-Eres un analista senior de un Centro de Operaciones de Seguridad (SOC).
-Analiza los siguientes artefactos de un correo electrónico y genera un informe técnico breve, en español.
+Eres un analista de un Centro de Operaciones de Seguridad (SOC).
+Analiza este correo y redacta un informe técnico breve, en español.
+
+HALLAZGOS VERIFICADOS AUTOMÁTICAMENTE (son hechos, no los contradigas):
+{lista_hallazgos}
 
 DATOS DEL CORREO:
 - Remitente (From): {datos['from']}
-- Responder a (Reply-To): {datos['reply_to']}
-- Ruta de retorno (Return-Path): {datos['return_path']}
-- Resultados de autenticación (SPF/DKIM): {datos['auth_results']}
+- Responder a (Reply-To): {datos['reply_to'] or 'No especificado'}
+- Ruta de retorno (Return-Path): {datos['return_path'] or 'No especificado'}
+- Resultados de autenticación: {datos['auth_results'] or 'No disponibles'}
 - Asunto: {datos['subject']}
 - URLs detectadas: {datos['urls']}
 - IPs detectadas: {datos['ips']}
-- Cuerpo del mensaje:
+- Cuerpo:
 {datos['cuerpo']}
 
-ESTRUCTURA OBLIGATORIA DE RESPUESTA:
-1. VEREDICTO Y PUNTUACIÓN DE RIESGO: (Legítimo / Sospechoso / Phishing - X/10)
-2. INDICADORES DE COMPROMISO (IoCs): IPs, dominios y URLs sospechosas.
-3. ANÁLISIS TÉCNICO: fallos de SPF/DKIM, suplantación de identidad y tácticas de ingeniería social.
-4. ACCIONES RECOMENDADAS: qué debería hacer el equipo SOC.
+ESTRUCTURA DEL INFORME:
+1. VEREDICTO Y PUNTUACIÓN DE RIESGO (Legítimo / Sospechoso / Phishing, de 0 a 10).
+2. INDICADORES DE COMPROMISO: dominios, IPs y URLs sospechosas.
+3. ANÁLISIS TÉCNICO: apóyate en los hallazgos verificados y en la ingeniería social del texto.
+4. ACCIONES RECOMENDADAS para el equipo de seguridad.
+
+REGLAS: nunca recomiendes responder al remitente, contactarlo ni abrir los enlaces.
 """
 
     try:
@@ -76,15 +121,19 @@ ESTRUCTURA OBLIGATORIA DE RESPUESTA:
 
 
 if __name__ == "__main__":
-    ruta = "muestras/correo_sospechoso.eml"
+    ruta = sys.argv[1] if len(sys.argv) > 1 else "muestras/correo_sospechoso.eml"
     print(f"[*] Analizando archivo: {ruta}")
-    artefactos = extraer_datos_eml(ruta)
-    print("[*] Datos extraídos:")
-    print("    From:", artefactos["from"])
-    print("    URLs:", artefactos["urls"])
-    print("    IPs:", artefactos["ips"])
-    print("[*] Consultando a la IA local (puede tardar uno o dos minutos)...\n")
-    informe = analizar_con_ia(artefactos)
+    datos = extraer_datos_eml(ruta)
+
+    hallazgos = comprobaciones_automaticas(datos)
+    print("\n=== COMPROBACIONES AUTOMÁTICAS (sin IA) ===")
+    for h in hallazgos:
+        print(" -", h)
+    if not hallazgos:
+        print(" - Ningún indicador detectado")
+
+    print("\n[*] Consultando a la IA local (puede tardar uno o dos minutos)...\n")
+    informe = analizar_con_ia(datos, hallazgos)
     print("=" * 60)
     print(informe)
     print("=" * 60)
